@@ -24,7 +24,7 @@
             var map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
             // TOMAS: Fusion Tables layer
-            var okupaLayer = new google.maps.FusionTablesLayer({
+            var layer = new google.maps.FusionTablesLayer({
                 query: {
                     select: 'Lugar',
                     from: '10KmKBbWAifWCsvTZ2HaYMOwGqi7dNgN-HhKkS-k'
@@ -44,10 +44,34 @@
                 }
                 ]
             });
+
+            $("#controls input").click(function() {
+
+
+                var inArray = [];
+                $("#controls input:checked").each(function(index, elem) {
+                            inArray.push($(elem).attr("data-type"));
+                        }
+                );
+                var ins = inArray.length == 0 ? "'FRUTA'" : inArray.join(", ");
+                var whereClause = "tipo IN (" + ins + ")";
+                layer.setOptions({
+                    query: {
+                        select: 'Lugar',
+                        from: '10KmKBbWAifWCsvTZ2HaYMOwGqi7dNgN-HhKkS-k',
+                        where: whereClause
+                    }
+                })
+            })
         }
     </script>
 </head>
 <body onload="initialize()">
+<div id="controls">
+    <input type="checkbox" id="toma" checked data-type="'TOMA'" /> Toma
+    <input type="checkbox" id="action" checked data-type="'ACCION'" /> Acción
+
+</div>
 <div id="map_canvas"></div>
 </body>
 </html>
