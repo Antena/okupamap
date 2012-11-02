@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="/assets/css/style.css"/>
     <script>
 
+        var ftId = '10KmKBbWAifWCsvTZ2HaYMOwGqi7dNgN-HhKkS-k';
+        var ftLocationColumn = 'Lugar';
 
         function initialize() {
             // Map
@@ -24,10 +26,11 @@
             var map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
             // TOMAS: Fusion Tables layer
+
             var layer = new google.maps.FusionTablesLayer({
                 query: {
-                    select: 'Lugar',
-                    from: '10KmKBbWAifWCsvTZ2HaYMOwGqi7dNgN-HhKkS-k'
+                    select: ftLocationColumn,
+                    from: ftId
                 },
                 map: map,
                 styles: [{
@@ -46,8 +49,7 @@
             });
 
             $("#controls input").click(function() {
-
-
+                // get selected types
                 var inArray = [];
                 $("#controls input:checked").each(function(index, elem) {
                             inArray.push($(elem).attr("data-type"));
@@ -55,22 +57,43 @@
                 );
                 var ins = inArray.length == 0 ? "'FRUTA'" : inArray.join(", ");
                 var whereClause = "tipo IN (" + ins + ")";
+
+                // update map
                 layer.setOptions({
                     query: {
-                        select: 'Lugar',
-                        from: '10KmKBbWAifWCsvTZ2HaYMOwGqi7dNgN-HhKkS-k',
+                        select: ftLocationColumn,
+                        from: ftId,
                         where: whereClause
                     }
                 })
             })
+
+            $("#controls input").change(function() {
+                var checked = $(this).attr("checked") == undefined ? false : true;
+                var icon = $(this).closest(".control").find(".icon");
+                if (checked) {
+                    icon.removeClass("disabled");
+                } else {
+                    icon.addClass("disabled");
+                }
+            });
         }
     </script>
 </head>
 <body onload="initialize()">
 <div id="controls">
-    <input type="checkbox" id="toma" checked data-type="'TOMA'" /> Toma
-    <input type="checkbox" id="action" checked data-type="'ACCION'" /> Acción
+    <label>Filtro:</label>
+    <div class="control">
+        <img src="assets/images/large_red.png" class="icon" alt="Tomas y ocupaciones"> <span class="label">Tomas y ocupaciones</span>
+        <input type="checkbox" id="toma" checked data-type="'TOMA'" />
+        <p class="description">Noticias relacionadas a la toma u ocupación de terrenos y/o viviendas</p>
+    </div>
 
+    <div class="control" style="margin-right: 0px">
+        <img src="assets/images/large_green.png" class="icon" alt="Acción Urbana"> <span class="label">Acción Urbana</span>
+        <input type="checkbox" id="action" checked data-type="'ACCION'" />
+        <p class="description">Noticias relacionadas a acciones urbanas llevadas a cabo en alguna ciudad del país.</p>
+    </div>
 </div>
 <div id="map_canvas"></div>
 </body>
