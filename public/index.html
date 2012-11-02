@@ -25,8 +25,7 @@
             }
             var map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
-            // TOMAS: Fusion Tables layer
-
+            // Fusion Tables layer
             var layer = new google.maps.FusionTablesLayer({
                 query: {
                     select: ftLocationColumn,
@@ -48,35 +47,48 @@
                 ]
             });
 
-            $("#controls input").click(function() {
-                // get selected types
-                var inArray = [];
-                $("#controls input:checked").each(function(index, elem) {
-                            inArray.push($(elem).attr("data-type"));
-                        }
-                );
-                var ins = inArray.length == 0 ? "'FRUTA'" : inArray.join(", ");
-                var whereClause = "tipo IN (" + ins + ")";
-
-                // update map
-                layer.setOptions({
-                    query: {
-                        select: ftLocationColumn,
-                        from: ftId,
-                        where: whereClause
-                    }
-                })
-            })
-
-            $("#controls input").change(function() {
-                var checked = $(this).attr("checked") == undefined ? false : true;
-                var icon = $(this).closest(".control").find(".icon");
-                if (checked) {
-                    icon.removeClass("disabled");
-                } else {
-                    icon.addClass("disabled");
-                }
+            // Custom InfoWindow
+            google.maps.event.addListener(layer, 'click', function(e) {
+                e.infoWindowHtml = '<div class="infoWindow">';
+                var date = new Date(e.row['Fecha'].value);
+                var dateString = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+                e.infoWindowHtml += '<div style="height: 20px;"><img src="assets/images/calendar_icon.png" alt="Fecha" style="float: left; margin-top: 2px;"><span class="text">' + dateString  + '</span></div>';
+                e.infoWindowHtml += '<a href="' + e.row['Link'].value + '" target="_blank"><h2>' + e.row['Título'].value + '</h2></a>';
+                e.infoWindowHtml += '<div style="height: 30px;"><img src="assets/images/location_icon.png" alt="Lugar" style="float: left;"><span class="text">' + e.row['Lugar'].value + '</span></div>';
+                e.infoWindowHtml += '<div style="height: 40px;"><img src="assets/images/link_icon.png" alt="Fecha" style="float: left;"><a href="' + e.row['Link'].value + '" target="_blank"><span class="text">' + e.row['Link'].value + '</span></a></div>';
+                e.infoWindowHtml += '</div>';
             });
+
+            // Filter checkboxes
+            $("#controls input")
+                    .click(function() {
+                        // get selected types
+                        var inArray = [];
+                        $("#controls input:checked").each(function(index, elem) {
+                                    inArray.push($(elem).attr("data-type"));
+                                }
+                        );
+                        var ins = inArray.length == 0 ? "'FRUTA'" : inArray.join(", ");
+                        var whereClause = "tipo IN (" + ins + ")";
+
+                        // update map
+                        layer.setOptions({
+                            query: {
+                                select: ftLocationColumn,
+                                from: ftId,
+                                where: whereClause
+                            }
+                        })
+                    })
+                    .change(function() {
+                        var checked = $(this).attr("checked") == undefined ? false : true;
+                        var icon = $(this).closest(".control").find(".icon");
+                        if (checked) {
+                            icon.removeClass("disabled");
+                        } else {
+                            icon.addClass("disabled");
+                        }
+                    });
         }
     </script>
 </head>
