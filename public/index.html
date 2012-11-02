@@ -24,14 +24,26 @@
             var map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
             // TOMAS: Fusion Tables layer
-            var layer = new google.maps.FusionTablesLayer({
+            var okupaLayer = new google.maps.FusionTablesLayer({
                 query: {
                     select: 'Lugar',
-                    from: '10KmKBbWAifWCsvTZ2HaYMOwGqi7dNgN-HhKkS-k',
-                    where: "tipo = 'TOMA'"
+                    from: '10KmKBbWAifWCsvTZ2HaYMOwGqi7dNgN-HhKkS-k'
+                },
+                map: map,
+                styles: [{
+                    where: "tipo = 'TOMA'",
+                    markerOptions: {
+                        iconName: "large_red"
+                    }
+                },{
+                    where: "tipo = 'ACCION'",
+                    markerOptions: {
+                        iconName: "large_green",
+                        opacity: 0
+                    }
                 }
+                ]
             });
-            layer.setMap(map);
         }
     </script>
 </head>
