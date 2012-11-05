@@ -15,8 +15,9 @@
 
     <script>
 
-        var ftId = '10KmKBbWAifWCsvTZ2HaYMOwGqi7dNgN-HhKkS-k';
-        var ftLocationColumn = 'Lugar';
+        var ftId = '1wYtdr5uTUKZJ3hBxTBT3R0LqeK2BwLtMiD_8s74';
+        var ftLocationColumn = 'LatLong';
+	var tipo = "'Tipo de noticia'";
         var queryUrlHead = 'https://fusiontables.googleusercontent.com/fusiontables/api/query?sql=';
         var queryUrlTail = '&jsonCallback=?';
         var infoWindow;
@@ -56,12 +57,12 @@
                 map: map,
                 suppressInfoWindows: true,
                 styles: [{
-                    where: "tipo = 'TOMA'",
+                    where: tipo + " = 'TOMA'",
                     markerOptions: {
                         iconName: "small_red"
                     }
                 },{
-                    where: "tipo = 'ACCION'",
+                    where: tipo + " = 'ACCION'",
                     markerOptions: {
                         iconName: "small_green",
                         opacity: 0
@@ -73,7 +74,7 @@
             // Custom InfoWindow
             google.maps.event.addListener(layer, 'click', function(e) {
                 var rows = [];
-                getFTData(ftId, "'Fecha', 'Link', 'Título', 'Lugar'", "'Lugar' = '" + e.row['Lugar'].value + "'", function(data) {
+                getFTData(ftId, "'Fecha de la toma', 'Link de la noticia', 'Titulo de la noticia / toma', 'Ubicación de la toma'", "'Ubicación de la toma' = '" + e.row['Ubicación de la toma'].value + "'", function(data) {
                     rows = data.table.rows;
 
                     var html = '<div class="infoWindow">';
@@ -105,7 +106,7 @@
                                 }
                         );
                         var ins = inArray.length == 0 ? "'FRUTA'" : inArray.join(", ");
-                        var whereClause = "tipo IN (" + ins + ")";
+                        var whereClause = tipo + " IN (" + ins + ")";
 
                         // update map
                         layer.setOptions({
