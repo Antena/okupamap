@@ -1,3 +1,4 @@
 *.ipr
 *.iws
 public/Public.iml
+*.DS_Store

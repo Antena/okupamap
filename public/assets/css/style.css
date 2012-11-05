@@ -60,6 +60,26 @@ html, body{
     margin-top: 0px;
     clear: both;
     padding-left: 20px;
+    margin-bottom: 0px;
+}
+
+#controls .control .add {
+    margin-left: 20px;
+    font-size: 11px;
+}
+
+#controls .control .add img {
+    position: relative;
+    top: 2px;
+}
+
+#controls .control .add a {
+    text-decoration: none;
+    color: #999999;
+}
+
+#controls .control .add a:hover {
+    text-decoration: underline;
 }
 
 #controls .info {
