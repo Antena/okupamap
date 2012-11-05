@@ -9,14 +9,32 @@
     <link rel="stylesheet" href="/assets/css/jquery-ui.css" />
     <link rel="stylesheet" href="/assets/css/style.css"/>
 
-    <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <script src="/assets/js/jquery-1.8.2.js"></script>
-    <script src="/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="/assets/js/jquery-1.8.2.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery-ui.js"></script>
 
     <script>
 
         var ftId = '10KmKBbWAifWCsvTZ2HaYMOwGqi7dNgN-HhKkS-k';
         var ftLocationColumn = 'Lugar';
+        var queryUrlHead = 'https://fusiontables.googleusercontent.com/fusiontables/api/query?sql=';
+        var queryUrlTail = '&jsonCallback=?';
+        var infoWindow;
+
+        function getFTData(table_id, col_list, whereClause, successFunction) {
+
+            var query = "SELECT " + col_list + " FROM " + table_id + " WHERE " + whereClause;
+
+            var queryurl = encodeURI(queryUrlHead + query + queryUrlTail);
+
+            $.ajax({
+                type: "GET",
+                url:  queryurl,
+                dataType: "jsonp",
+                success: successFunction,
+                error: function () {alert("AJAX ERROR for " + queryurl ); }
+            });
+        }
 
         function initialize() {
             // Map
@@ -32,18 +50,20 @@
             var layer = new google.maps.FusionTablesLayer({
                 query: {
                     select: ftLocationColumn,
-                    from: ftId
+                    from: ftId,
+                    groupby: ftLocationColumn
                 },
                 map: map,
+                suppressInfoWindows: true,
                 styles: [{
                     where: "tipo = 'TOMA'",
                     markerOptions: {
-                        iconName: "large_red"
+                        iconName: "small_red"
                     }
                 },{
                     where: "tipo = 'ACCION'",
                     markerOptions: {
-                        iconName: "large_green",
+                        iconName: "small_green",
                         opacity: 0
                     }
                 }
@@ -52,15 +72,28 @@
 
             // Custom InfoWindow
             google.maps.event.addListener(layer, 'click', function(e) {
-                e.infoWindowHtml = '<div class="infoWindow">';
-                var date = new Date(e.row['Fecha'].value);
-                var dateString = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
-                e.infoWindowHtml += '<div style="height: 20px;"><img src="assets/images/calendar_icon.png" alt="Fecha" style="float: left; margin-top: 2px;"><span class="text">' + dateString  + '</span></div>';
-                e.infoWindowHtml += '<a href="' + e.row['Link'].value + '" target="_blank"><h2>' + e.row['Título'].value + '</h2></a>';
-                e.infoWindowHtml += '<div style="height: 30px;"><img src="assets/images/location_icon.png" alt="Lugar" style="float: left;"><span class="text">' + e.row['Lugar'].value + '</span></div>';
-                e.infoWindowHtml += '<div style="height: 40px;"><img src="assets/images/link_icon.png" alt="Fecha" style="float: left;"><a href="' + e.row['Link'].value + '" target="_blank"><span class="text">' + e.row['Link'].value + '</span></a></div>';
-                e.infoWindowHtml += '</div>';
+                var rows = [];
+                getFTData(ftId, "'Fecha', 'Link', 'Título', 'Lugar'", "'Lugar' = '" + e.row['Lugar'].value + "'", function(data) {
+                    rows = data.table.rows;
+
+                    var html = '<div class="infoWindow">';
+                    for (var i=0; i<rows.length; i++) {
+                        var date = new Date(rows[i][0]);
+                        var dateString = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+                        html += '<div style="height: 20px;"><img src="assets/images/calendar_icon.png" alt="Fecha" style="float: left; margin-top: 2px;"><span class="text">' + dateString  + '</span></div>';
+                        html += '<a href="' + rows[i][1] + '" target="_blank"><h2>' + rows[i][2] + '</h2></a>';
+                        html += '<div style="height: 30px;"><img src="assets/images/location_icon.png" alt="Lugar" style="float: left;"><span class="text">' + rows[i][3] + '</span></div>';
+                        html += '<div class="link"><img src="assets/images/link_icon.png" alt="Fecha" style="float: left;"><a href="' + rows[i][1] + '" target="_blank"><span class="text">' + rows[i][1] + '</span></a></div>';
+                        html += '<hr/>';
+                    }
+                    html += "</div>";
+
+                    infoWindow.setContent(html);
+                    infoWindow.setPosition(e.latLng);
+                    infoWindow.open(map);
+                });
             });
+            infoWindow = new google.maps.InfoWindow();
 
             // Filter checkboxes
             $("#controls input")
@@ -99,13 +132,13 @@
 <div id="controls">
     <label>Filtro:</label>
     <div class="control">
-        <img src="assets/images/large_red.png" class="icon" alt="Tomas y ocupaciones"> <span class="label">Tomas y ocupaciones</span>
+        <img src="assets/images/small_red.png" class="icon" alt="Tomas y ocupaciones"> <span class="label">Tomas y ocupaciones</span>
         <input type="checkbox" id="toma" checked data-type="'TOMA'" />
         <p class="description">Noticias relacionadas a la toma u ocupación de terrenos y/o viviendas</p>
     </div>
 
     <div class="control" style="margin-right: 0px">
-        <img src="assets/images/large_green.png" class="icon" alt="Acción Urbana"> <span class="label">Acción Urbana</span>
+        <img src="assets/images/small_green.png" class="icon" alt="Acción Urbana"> <span class="label">Acción Urbana</span>
         <input type="checkbox" id="action" checked data-type="'ACCION'" />
         <p class="description">Noticias relacionadas a acciones urbanas llevadas a cabo en alguna ciudad del país.</p>
     </div>

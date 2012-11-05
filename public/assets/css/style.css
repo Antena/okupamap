@@ -1,9 +1,13 @@
-html, body, #map_canvas {
+html, body{
     margin: 0;
     padding: 0;
     height: 100%;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
+}
+
+#map_canvas {
+    height: 100%;
 }
 
 #controls {
@@ -40,8 +44,9 @@ html, body, #map_canvas {
 
 #controls .control .icon {
     float: left;
-    height: 20px;
-    width: 20px;
+    position: relative;
+    top: 6px;
+    margin-right: 12px;
 }
 
 #controls .control .icon.disabled {
@@ -69,6 +74,7 @@ html, body, #map_canvas {
 /* InfoWindow */
 .infoWindow {
     width: 400px;
+    overflow: scroll;
 }
 
 .infoWindow h2 {
@@ -78,6 +84,11 @@ html, body, #map_canvas {
 .infoWindow a {
     color: #000;
     text-decoration: none;
+}
+
+.infoWindow hr {
+    margin-top: 25px;
+    margin-bottom: 25px;
 }
 
 .infoWindow a:hover {
